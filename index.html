@@ -38,7 +38,7 @@ header.top p{margin:0;color:var(--ink-2);flex:1 1 320px}
 .notice b{font-family:var(--f-mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;margin-right:8px}
 .main{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:14px;align-items:start}
 .vp-col{min-width:0}
-#viewport{position:relative;height:62vh;min-height:420px;background:var(--sheet);border:1px solid var(--rule);border-radius:2px;overflow:hidden}
+#viewport{position:relative;height:56vh;min-height:400px;background:var(--sheet);border:1px solid var(--rule);border-radius:2px;overflow:hidden}
 #viewport canvas{display:block}
 .howto{margin:6px 0 0;font-family:var(--f-mono);font-size:11px;letter-spacing:.06em;color:var(--ink-3);text-transform:uppercase}
 #inspector{position:absolute;left:10px;bottom:10px;max-width:min(380px,calc(100% - 20px));background:var(--sheet);border:1px solid var(--ink-3);border-radius:2px;padding:10px 34px 10px 12px;display:none}
@@ -79,12 +79,13 @@ dl.read dd{margin:0;text-align:right;font-family:var(--f-mono);font-variant-nume
 .pills{display:flex;gap:6px;margin:8px 0}
 .pill{font-family:var(--f-mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;padding:2px 8px;border:1px solid var(--rule);color:var(--ink-3);border-radius:2px}
 .pill.on{background:var(--warn-bg);color:var(--warn);border-color:var(--warn)}
-.instruments{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:14px}
+.instruments{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:10px}
 .inst{background:var(--sheet);border:1px solid var(--rule);border-radius:2px;padding:8px 10px 10px;min-width:0}
 .inst h2{margin:0 0 6px;font-family:var(--f-mono);font-size:11px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3)}
-.inst canvas{display:block;width:100%;height:230px}
+.inst canvas{display:block;width:100%;height:190px}
 @media (max-width:960px){
   .main,.instruments{grid-template-columns:minmax(0,1fr)}
+  .inst canvas{height:200px}
   #viewport{height:55vh;min-height:320px}
 }
 @media (max-width:480px){
@@ -112,6 +113,11 @@ dl.read dd{margin:0;text-align:right;font-family:var(--f-mono);font-variant-nume
         </div>
       </div>
       <p class="howto">Drag to orbit · scroll to zoom · click a part to inspect</p>
+      <section class="instruments" aria-label="Instruments">
+        <div class="inst"><h2>Oscilloscope</h2><canvas id="cv-scope" aria-label="Oscilloscope"></canvas></div>
+        <div class="inst"><h2>Spectrogram</h2><canvas id="cv-spec" aria-label="Spectrogram"></canvas></div>
+        <div class="inst"><h2>Preamp response (Bode)</h2><canvas id="cv-bode" aria-label="Preamp frequency response"></canvas></div>
+      </section>
     </div>
 
     <aside class="controls" aria-label="Controls">
@@ -212,12 +218,6 @@ dl.read dd{margin:0;text-align:right;font-family:var(--f-mono);font-variant-nume
       </fieldset>
     </aside>
   </div>
-
-  <section class="instruments" aria-label="Instruments">
-    <div class="inst"><h2>Oscilloscope</h2><canvas id="cv-scope" aria-label="Oscilloscope"></canvas></div>
-    <div class="inst"><h2>Spectrogram</h2><canvas id="cv-spec" aria-label="Spectrogram"></canvas></div>
-    <div class="inst"><h2>Preamp response (Bode)</h2><canvas id="cv-bode" aria-label="Preamp frequency response"></canvas></div>
-  </section>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/three@0.147.0/build/three.min.js"></script>
