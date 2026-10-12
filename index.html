@@ -1,0 +1,231 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Lycosa Vibration Rig</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Narrow:wght@600;700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#eceee9; --sheet:#f8f9f6; --panel:#e4e8e2; --ink:#1b2427; --ink-2:#4e5b5e; --ink-3:#778386;
+  --rule:#c2c9c2; --sig:#1f5fa8; --mech:#2b6e5f; --warn:#8d6210; --warn-bg:#f3ead6;
+  --f-display:"Archivo Narrow","Arial Narrow",Arial,sans-serif;
+  --f-body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#14191a; --sheet:#1c2223; --panel:#232b2c; --ink:#dfe5e2; --ink-2:#a3aeae; --ink-3:#7e8a89;
+    --rule:#374040; --sig:#6da6e6; --mech:#5cbda6; --warn:#d7a840; --warn-bg:#2e2716;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#14191a; --sheet:#1c2223; --panel:#232b2c; --ink:#dfe5e2; --ink-2:#a3aeae; --ink-3:#7e8a89;
+  --rule:#374040; --sig:#6da6e6; --mech:#5cbda6; --warn:#d7a840; --warn-bg:#2e2716;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:14px;line-height:1.45}
+.wrap{max-width:1600px;margin:0 auto;padding:16px clamp(16px,2.5vw,32px) 32px}
+header.top{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 16px;border-bottom:1px solid var(--rule);padding-bottom:10px}
+header.top h1{font-family:var(--f-display);font-weight:700;font-size:28px;margin:0;letter-spacing:.01em}
+header.top p{margin:0;color:var(--ink-2);flex:1 1 320px}
+.tag{font-family:var(--f-mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3);border:1px solid var(--rule);padding:2px 6px;border-radius:2px}
+.notice{margin:10px 0 14px;padding:8px 12px;background:var(--warn-bg);color:var(--warn);border:1px solid var(--warn);border-radius:2px;font-size:13px}
+.notice b{font-family:var(--f-mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;margin-right:8px}
+.main{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:14px;align-items:start}
+.vp-col{min-width:0}
+#viewport{position:relative;height:62vh;min-height:420px;background:var(--sheet);border:1px solid var(--rule);border-radius:2px;overflow:hidden}
+#viewport canvas{display:block}
+.howto{margin:6px 0 0;font-family:var(--f-mono);font-size:11px;letter-spacing:.06em;color:var(--ink-3);text-transform:uppercase}
+#inspector{position:absolute;left:10px;bottom:10px;max-width:min(380px,calc(100% - 20px));background:var(--sheet);border:1px solid var(--ink-3);border-radius:2px;padding:10px 34px 10px 12px;display:none}
+#inspector.on{display:block}
+#inspector h3{margin:0 0 4px;font-family:var(--f-display);font-size:16px;font-weight:700}
+#inspector p{margin:0;font-size:13px;color:var(--ink-2)}
+#inspector-close{position:absolute;top:4px;right:4px;width:26px;height:26px;padding:0;line-height:1;font-size:16px}
+.vp-error{position:absolute;inset:12px;border:1px solid var(--warn);background:var(--warn-bg);color:var(--warn);padding:12px;font-family:var(--f-mono);font-size:12px;border-radius:2px;overflow:auto}
+aside.controls{background:var(--sheet);border:1px solid var(--rule);border-radius:2px;padding:4px 14px 14px}
+fieldset{border:0;border-top:1px solid var(--rule);margin:12px 0 0;padding:10px 0 0;min-width:0}
+fieldset:first-child{border-top:0;margin-top:6px}
+legend{font-family:var(--f-mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);padding:0 6px 0 0;float:left;width:100%;margin-bottom:8px}
+legend+*{clear:both}
+.row{display:flex;flex-direction:column;gap:3px;margin-bottom:10px}
+.row>label,.lbl{font-size:12px;color:var(--ink-2);display:flex;justify-content:space-between;gap:8px}
+.val{font-family:var(--f-mono);font-variant-numeric:tabular-nums;color:var(--ink)}
+.hint{font-size:11.5px;color:var(--ink-3);margin:0 0 8px}
+button,select,input{font:inherit;color:var(--ink)}
+button,select{background:var(--panel);border:1px solid var(--rule);border-radius:2px;padding:6px 10px;min-height:32px;cursor:pointer}
+button:hover,select:hover{border-color:var(--ink-3)}
+button[aria-pressed="true"],button.on{background:var(--ink);color:var(--sheet);border-color:var(--ink)}
+button.accent{border-color:var(--mech);color:var(--mech)}
+button.accent:hover{background:var(--mech);color:var(--sheet)}
+:focus-visible{outline:2px solid var(--sig);outline-offset:2px}
+input[type=range]{width:100%;accent-color:var(--sig);margin:0;min-height:24px}
+.seg,.btns{display:flex;flex-wrap:wrap;gap:0}
+.seg button{flex:1 1 0;border-radius:0;margin-left:-1px;padding:6px 4px;font-size:12px}
+.seg button:first-child{margin-left:0;border-radius:2px 0 0 2px}
+.seg button:last-child{border-radius:0 2px 2px 0}
+.btns{gap:4px}
+.btns button{flex:1 1 auto;font-size:12px;padding:6px 8px}
+.chk{display:flex;align-items:center;gap:8px;font-size:13px;min-height:28px}
+.chk input{width:16px;height:16px;accent-color:var(--sig);margin:0}
+.chk .state{margin-left:auto;font-family:var(--f-mono);font-size:11px;color:var(--ink-3);text-transform:uppercase;letter-spacing:.08em}
+dl.read{margin:0;display:grid;grid-template-columns:1fr auto;gap:4px 10px;font-size:12px}
+dl.read dt{color:var(--ink-2)}
+dl.read dd{margin:0;text-align:right;font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+.pills{display:flex;gap:6px;margin:8px 0}
+.pill{font-family:var(--f-mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;padding:2px 8px;border:1px solid var(--rule);color:var(--ink-3);border-radius:2px}
+.pill.on{background:var(--warn-bg);color:var(--warn);border-color:var(--warn)}
+.instruments{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:14px}
+.inst{background:var(--sheet);border:1px solid var(--rule);border-radius:2px;padding:8px 10px 10px;min-width:0}
+.inst h2{margin:0 0 6px;font-family:var(--f-mono);font-size:11px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3)}
+.inst canvas{display:block;width:100%;height:230px}
+@media (max-width:960px){
+  .main,.instruments{grid-template-columns:minmax(0,1fr)}
+  #viewport{height:55vh;min-height:320px}
+}
+@media (max-width:480px){
+  header.top h1{font-size:24px}
+}
+@media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <h1>Lycosa Vibration Rig</h1>
+    <p>Contact-mic rig · split-panel arena · TL072 preamp — 3D model and live signal-chain simulation</p>
+    <span class="tag">SPR-RIG-3D</span>
+  </header>
+  <div class="notice" id="notice" role="note"><b>Notice</b><span id="notice-text">Illustrative signals: L. erythrognatha's vibratory signal has never been recorded. The spider waveforms are placeholders; the electronics are modelled from the real circuit.</span></div>
+
+  <div class="main">
+    <div class="vp-col">
+      <div id="viewport" aria-label="3D view of the recording rig">
+        <div id="inspector" role="dialog" aria-label="Part inspector">
+          <button id="inspector-close" type="button" aria-label="Close inspector">&times;</button>
+          <h3 id="inspector-title"></h3>
+          <p id="inspector-body"></p>
+        </div>
+      </div>
+      <p class="howto">Drag to orbit · scroll to zoom · click a part to inspect</p>
+    </div>
+
+    <aside class="controls" aria-label="Controls">
+      <fieldset>
+        <legend>Simulation</legend>
+        <div class="btns">
+          <button type="button" id="btn-run" aria-pressed="true">Pause</button>
+          <button type="button" id="btn-knock" class="accent">Simulate a bench knock</button>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Spider signal (placeholder)</legend>
+        <div class="row">
+          <span class="lbl" id="lbl-signalType">Signal type</span>
+          <div class="seg" role="group" aria-labelledby="lbl-signalType" id="seg-signalType">
+            <button type="button" data-v="percussion" aria-pressed="false">Percussion</button>
+            <button type="button" data-v="stridulation" aria-pressed="false">Stridulation</button>
+            <button type="button" data-v="mixed" aria-pressed="true">Mixed</button>
+          </div>
+        </div>
+        <div class="row">
+          <label for="in-domFreq">Dominant frequency <span class="val" id="out-domFreq"></span></label>
+          <input type="range" id="in-domFreq" min="0" max="1000" step="1">
+        </div>
+        <div class="row">
+          <label for="in-boutRate">Bout rate <span class="val" id="out-boutRate"></span></label>
+          <input type="range" id="in-boutRate" min="1" max="30" step="1">
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Preamp</legend>
+        <div class="row">
+          <label for="in-R1">R1 (input resistor)</label>
+          <select id="in-R1">
+            <option value="10000">10 k&Omega;</option>
+            <option value="100000">100 k&Omega;</option>
+            <option value="1000000">1 M&Omega;</option>
+            <option value="10000000">10 M&Omega;</option>
+          </select>
+          <p class="hint" style="margin:2px 0 0">1 M&Omega; is the design value; lower values silently delete low-frequency signal.</p>
+        </div>
+        <div class="row">
+          <label for="in-gain">RV1 gain <span class="val" id="out-gain"></span></label>
+          <input type="range" id="in-gain" min="0" max="1" step="0.01">
+        </div>
+        <div class="row">
+          <label for="in-Cp">Disc capacitance Cp</label>
+          <select id="in-Cp">
+            <option value="10e-9">10 nF</option>
+            <option value="15e-9">15 nF</option>
+            <option value="22e-9">22 nF</option>
+            <option value="30e-9">30 nF</option>
+          </select>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Environment</legend>
+        <label class="chk" for="in-isolation"><input type="checkbox" id="in-isolation" role="switch"> Isolation feet <span class="state" id="out-isolation"></span></label>
+        <div class="row">
+          <label for="in-mains">Supply</label>
+          <select id="in-mains">
+            <option value="battery">Battery</option>
+            <option value="adapter">Wall adapter</option>
+          </select>
+          <p class="hint" style="margin:2px 0 0">Ecuador mains is 60 Hz.</p>
+        </div>
+        <div class="row">
+          <label for="in-ambient">Ambient noise <span class="val" id="out-ambient"></span></label>
+          <input type="range" id="in-ambient" min="0" max="1" step="0.01">
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>View</legend>
+        <div class="btns" id="view-presets" role="group" aria-label="Camera presets">
+          <button type="button" data-p="overview">Overview</button>
+          <button type="button" data-p="arena">Arena</button>
+          <button type="button" data-p="underside">Underside</button>
+          <button type="button" data-p="board">Board</button>
+          <button type="button" data-p="chain">Signal chain</button>
+        </div>
+        <label class="chk" for="in-xray" style="margin-top:8px"><input type="checkbox" id="in-xray"> X-ray</label>
+      </fieldset>
+
+      <fieldset>
+        <legend>Readouts</legend>
+        <dl class="read">
+          <dt>Piezo EMF peak</dt><dd id="r-piezo">&mdash;</dd>
+          <dt>Node A peak</dt><dd id="r-nodeA">&mdash;</dd>
+          <dt>Output peak</dt><dd id="r-out">&mdash;</dd>
+          <dt>Recorder level</dt><dd id="r-dbfs">&mdash;</dd>
+          <dt>Low corner (&minus;3 dB)</dt><dd id="r-corner">&mdash;</dd>
+        </dl>
+        <div class="pills"><span class="pill" id="pill-clamp">Clamp</span><span class="pill" id="pill-clip">Clip</span></div>
+      </fieldset>
+    </aside>
+  </div>
+
+  <section class="instruments" aria-label="Instruments">
+    <div class="inst"><h2>Oscilloscope</h2><canvas id="cv-scope" aria-label="Oscilloscope"></canvas></div>
+    <div class="inst"><h2>Spectrogram</h2><canvas id="cv-spec" aria-label="Spectrogram"></canvas></div>
+    <div class="inst"><h2>Preamp response (Bode)</h2><canvas id="cv-bode" aria-label="Preamp frequency response"></canvas></div>
+  </section>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/three@0.147.0/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.147.0/examples/js/controls/OrbitControls.js"></script>
+<script src="contract.js"></script>
+<script src="scene.js"></script>
+<script src="electronics.js"></script>
+<script src="signal.js"></script>
+<script src="ui.js"></script>
+</body>
+</html>
