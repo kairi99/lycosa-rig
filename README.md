@@ -30,6 +30,7 @@ real circuit: midband gain ≈ 51× (RV1 centred) and a −3 dB low corner near 
 | `index.html` | Page layout, styles, script loading |
 | `contract.js` | Shared dimensions (1 unit = 1 cm), circuit values, event bus |
 | `scene.js` | Bench, arena, spiders, lighting, camera views |
+| `board_layout.js` | Perfboard layout: hole for every lead, every jumper, and the netlist from the circuit |
 | `electronics.js` | Piezo disc, preamp board, cables, recorder |
 | `signal.js` | Signal-chain simulation (48 kHz, time domain) |
 | `ui.js` | Controls, instruments, click-to-inspect, main loop |

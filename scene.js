@@ -425,7 +425,8 @@
     overview: { p: [58, 52, 82], t: [0, 4, 0] },
     arena: { p: [9, 17, 20], t: [0, 5.5, 0] },
     underside: { p: [-4.5, 1.5, 28], t: [POS.piezo.x, POS.piezo.y, POS.piezo.z] },
-    board: { p: [POS.enclosure.x, 1.8, 34], t: [POS.enclosure.x, 1.6, POS.enclosure.z] },
+    // close, slightly raised front view so the components and jumpers on the 7 × 5 cm board are legible
+    board: { p: [POS.enclosure.x - 1, 2.2, POS.enclosure.z + 13], t: [POS.enclosure.x - 1, 1.4, POS.enclosure.z] },
     chain: { p: [-22, 5, 52], t: [-20, 1.5, 12] },
   };
   function setView(name) {
@@ -469,7 +470,7 @@
     camera = new THREE.PerspectiveCamera(40, 1, 0.5, 1500);
     controls = new THREE.OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true; controls.dampingFactor = 0.08;
-    controls.minDistance = 8; controls.maxDistance = 250;
+    controls.minDistance = 2; controls.maxDistance = 250;
     controls.target.set(0, 4, 0);
     const o = PRESETS.overview; camera.position.set(o.p[0], o.p[1], o.p[2]);
 

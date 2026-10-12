@@ -66,23 +66,24 @@
   }
   function pick(obj, title, body) { RIG.pickables.push({ object3d: obj, title: title, body: body }); }
 
-  const SILVER = 0xbfc3c8;
+  const SILVER = 0xd2d6db;
   const BAND = { brown: 0x7a3b10, black: 0x141414, red: 0xc4281c, orange: 0xe8731a, yellow: 0xe6c619, green: 0x2a8a3c, gold: 0xcfa63a };
 
   // thin axis-aligned lead wires
   function legV(parent, x, y0, y1, z) {
-    const o = add(parent, cylG(0.022, 0.022, 1, 6), mat(SILVER, 0.3, 0.9), x, (y0 + y1) / 2, z);
+    const o = add(parent, cylG(0.022, 0.022, 1, 6), mat(SILVER, 0.35, 0.45), x, (y0 + y1) / 2, z);
     o.scale.y = Math.abs(y1 - y0); return o;
   }
   function legH(parent, xc, y, z, len) {
-    const o = add(parent, cylG(0.022, 0.022, 1, 6, true), mat(SILVER, 0.3, 0.9), xc, y, z);
+    const o = add(parent, cylG(0.022, 0.022, 1, 6, true), mat(SILVER, 0.35, 0.45), xc, y, z);
     o.scale.x = len; return o;
   }
 
   // ---------- component factories (PCB-local: y = 0 is the board's top face) ----------
-  function makeResistor(bands) {
+  function makeResistor(bands, span) {
     const g = new THREE.Group();
-    const len = 0.63, rad = 0.12, span = 1.0, h0 = 0.2;
+    const len = 0.63, rad = 0.12, h0 = 0.2;
+    span = span || 1.016;
     add(g, cylG(rad, rad, len, 12, true), mat(0xd9c9a0, 0.8, 0), 0, h0, 0);
     const xs = [-0.21, -0.13, -0.05, 0.2];
     for (let i = 0; i < bands.length; i++) {
@@ -94,9 +95,10 @@
     }
     return g;
   }
-  function makeDiode(flip) {
+  function makeDiode(flip, span) {
     const g = new THREE.Group();
-    const len = 0.37, rad = 0.09, span = 0.8, h0 = 0.15;
+    const len = 0.37, rad = 0.09, h0 = 0.15;
+    span = span || 1.016;
     const bodyMat = mat(0xe08a2a, 0.15, 0, { emissive: 0x000000, unique: true, transparent: true, opacity: 0.92 });
     add(g, cylG(rad, rad, len, 10, true), bodyMat, 0, h0, 0);
     const s = flip ? -1 : 1;
@@ -118,7 +120,7 @@
     add(g, cylG(r * 0.98, r * 0.98, 0.01, 18), mat(0x8a8f96, 0.4, 0.7), 0, y0 + h + 0.004, 0);
     add(g, boxG(r * 1.4, 0.006, 0.03), mat(0x555a60, 0.5, 0.5), 0, y0 + h + 0.01, 0);
     add(g, boxG(0.03, 0.006, r * 1.4), mat(0x555a60, 0.5, 0.5), 0, y0 + h + 0.01, 0);
-    legV(g, -r * 0.5, -0.1, y0, 0); legV(g, r * 0.5, -0.1, y0, 0);
+    legV(g, -0.127, -0.1, y0, 0); legV(g, 0.127, -0.1, y0, 0);
     return g;
   }
   function makeTrimpot() {
@@ -130,7 +132,7 @@
     add(piv, cylG(0.17, 0.17, 0.08, 18), mat(0xc9a24a, 0.3, 0.9), 0, 0.02, 0);
     add(piv, boxG(0.3, 0.03, 0.05), mat(0x2a2218, 0.6, 0.3), 0, 0.065, 0);
     g.add(piv);
-    for (const dx of [-0.25, 0, 0.25]) legV(g, dx, -0.1, 0.05, 0.4);
+    for (const dx of [-0.254, 0, 0.254]) legV(g, dx, -0.1, 0.05, 0.4);
     S.screwPivot = piv;
     return g;
   }
@@ -144,13 +146,13 @@
     const lab = add(g, new THREE.PlaneGeometry(0.7, 0.35), lm, 0.06, 0.447, 0);
     lab.rotation.x = -Math.PI / 2;
     add(g, cylG(0.09, 0.09, 0.004, 14), mat(0x050505, 0.8, 0), -0.43, 0.446, 0); // notch
-    add(g, cylG(0.03, 0.03, 0.004, 8), mat(0xdddddd, 0.6, 0), -0.36, 0.447, -0.2); // pin-1 dot
-    const lm2 = mat(SILVER, 0.3, 0.9);
+    add(g, cylG(0.03, 0.03, 0.004, 8), mat(0xdddddd, 0.6, 0), -0.36, 0.447, 0.2); // pin-1 dot (pins 1-4 run along +z)
+    const lm2 = mat(SILVER, 0.35, 0.45);
     for (let i = 0; i < 4; i++) {
       const x = -0.381 + i * 0.254;
       for (const s of [-1, 1]) {
-        add(g, boxG(0.06, 0.3, 0.045), lm2, x, 0.15, s * 0.385);
-        add(g, boxG(0.06, 0.04, 0.12), lm2, x, 0.27, s * 0.34);
+        add(g, boxG(0.06, 0.3, 0.045), lm2, x, 0.15, s * 0.381);
+        add(g, boxG(0.06, 0.04, 0.12), lm2, x, 0.27, s * 0.336);
       }
     }
     g.userData.body = body;
@@ -160,7 +162,7 @@
     const g = new THREE.Group();
     add(g, boxG(1.4, 0.95, 0.6), mat(0xd9302a, 0.5, 0), 0, 0.55, 0);
     add(g, boxG(1.0, 0.5, 0.605), mat(0xe8c21a, 0.5, 0), 0, 0.6, 0);
-    legV(g, -0.5, -0.1, 0.08, 0); legV(g, 0.5, -0.1, 0.08, 0);
+    legV(g, -0.508, -0.1, 0.08, 0); legV(g, 0.508, -0.1, 0.08, 0);
     return g;
   }
   function makeCeramicDisc() {
@@ -170,7 +172,7 @@
     d.rotation.x = Math.PI / 2; d.position.set(0, 0.42, 0); g.add(d);
     const lt = labelTex('104', 64, 64, '#e8a020', '#3a2a10', 'bold 30px monospace');
     const lab = add(g, new THREE.PlaneGeometry(0.34, 0.34), new THREE.MeshBasicMaterial({ map: lt }), 0, 0.42, 0.066);
-    legV(g, -0.1, -0.1, 0.2, 0); legV(g, 0.1, -0.1, 0.2, 0);
+    legV(g, -0.254, -0.1, 0.2, 0); legV(g, 0.254, -0.1, 0.2, 0);
     return g;
   }
 
@@ -180,20 +182,6 @@
     const c = document.createElement('canvas'); c.width = W; c.height = H;
     const x = c.getContext('2d');
     x.fillStyle = '#b39a62'; x.fillRect(0, 0, W, H);
-    const px = (v) => (v + 3.5) * 100, pz = (v) => (v + 2.5) * 100;
-    // copper traces
-    x.strokeStyle = '#d9a066'; x.lineWidth = 8; x.lineCap = 'round'; x.lineJoin = 'round';
-    const T = [
-      [[2.9, -2.0], [2.0, -2.0], [2.0, -0.8]],
-      [[2.0, -1.05], [1.3, -1.05], [1.3, -0.38], [0.4, -0.38]],
-      [[0.4, -0.38], [-0.2, -0.38], [-0.2, -1.7], [-0.5, -1.7]],
-      [[-1.5, -0.6], [-3.1, -0.6]],
-      [[0.4, 0.38], [0.4, 1.1]],
-      [[3.3, 2.3], [-3.3, 2.3]],
-      [[3.3, -2.3], [-3.3, -2.3]],
-      [[-2.4, 1.2], [-0.8, 1.5]],
-    ];
-    for (const p of T) { x.beginPath(); x.moveTo(px(p[0][0]), pz(p[0][1])); for (let i = 1; i < p.length; i++) x.lineTo(px(p[i][0]), pz(p[i][1])); x.stroke(); }
     // hole grid
     for (let gx = 0.12; gx < 7; gx += 0.254) {
       for (let gz = 0.12; gz < 5; gz += 0.254) {
@@ -309,7 +297,8 @@
       add(enc, cylG(0.15, 0.15, 0.4, 10), mat(0xc9a24a, 0.35, 0.8), PX + sx * (DIM.pcb.w / 2 - 0.3), bottomY + 0.2, sz * (DIM.pcb.d / 2 - 0.3));
     }
 
-    // ===== PCB =====
+    // ===== PCB (layout and wiring come from board_layout.js; see rig_build_spec.md §2a) =====
+    const BD = RIG.BOARD;
     const pcb = new THREE.Group(); pcb.name = 'PCB';
     pcb.position.set(PX, pcbTopY, 0);
     enc.add(pcb);
@@ -317,56 +306,96 @@
     const pt = pcbTexture();
     const top = add(pcb, new THREE.PlaneGeometry(DIM.pcb.w, DIM.pcb.d), new THREE.MeshStandardMaterial({ map: pt, roughness: 0.75 }), 0, 0.002, 0);
     top.rotation.x = -Math.PI / 2;
-    pick(pcb.children[0], 'PCB · perfboard', 'Hand-wired 7 × 5 cm perfboard on four standoffs near the bottom of the box. Components face up toward the platform; the TL072 sits mid-board and the signal runs from the input (right) to the jack (left).');
+    pick(pcb.children[0], 'PCB · perfboard', 'Hand-wired 7 × 5 cm perfboard (0.1" grid) on four standoffs. Every lead sits in its own hole; bare tinned bus wire carries +9 V and ground, and coloured insulated jumpers make the other connections, crossing only at different heights. Signal enters on the right and leaves on the left.');
 
-    function place(g, x, z, ry) { g.position.set(x, 0, z); if (ry) g.rotation.y = ry; pcb.add(g); return g; }
+    const HP = (h) => BD.hole(h[0], h[1]);
+    const partBy = {};
+    for (const p of BD.parts) partBy[p.ref] = p;
+    // Place a part so local +x runs from pin pa to pin pb and its leads land exactly in those holes.
+    function between(g, pa, pb, yOff) {
+      const a = HP(pa), b = HP(pb);
+      g.position.set((a.x + b.x) / 2, yOff || 0, (a.z + b.z) / 2);
+      g.rotation.y = Math.atan2(-(b.z - a.z), b.x - a.x);
+      pcb.add(g); return g;
+    }
+    const span = (pa, pb) => { const a = HP(pa), b = HP(pb); return Math.hypot(b.x - a.x, b.z - a.z); };
+    function resistor(ref) { const p = partBy[ref]; return between(makeResistor(p.bands, span(p.pins.a, p.pins.b)), p.pins.a, p.pins.b); }
+    function diode(ref) { const p = partBy[ref]; return between(makeDiode(false, span(p.pins.A, p.pins.K)), p.pins.A, p.pins.K); }
+    function electro(ref) { const p = partBy[ref]; return between(makeElectrolytic(p.r, p.h, p.color, Math.PI / 2), p.pins['+'], p.pins['-']); }
 
-    const R1 = place(makeResistor(['brown', 'black', 'green', 'gold']), 2.4, -2.0);
-    pick(R1, 'R1 · 1 MΩ', 'Sets the low-frequency corner with the disc\'s own capacitance (~11 Hz). A lower value silently deletes low-frequency signal — try 100 kΩ in the controls.');
-
-    const dW = new THREE.Group();
-    const D1 = makeDiode(false); D1.position.set(2.4, 0, -1.3); dW.add(D1);
-    const D2 = makeDiode(true); D2.position.set(2.4, 0, -0.8); dW.add(D2);
-    pcb.add(dW);
+    const R1 = resistor('R1');
+    pick(R1, 'R1 · 1 MΩ', 'From node A to the V/2 rail. Sets the low-frequency corner with the disc\'s own capacitance (~11 Hz). A lower value silently deletes low-frequency signal — try 100 kΩ in the controls.');
+    const D1 = diode('D1'), D2 = diode('D2');
     S.d1Mat = D1.userData.bodyMat; S.d2Mat = D2.userData.bodyMat;
-    pick(dW, 'D1 / D2 · 1N4148 clamp', 'Anti-parallel pair from the input node to the V/2 rail, not to 0 V: node A idles at V/2, so a clamp to ground would forward-bias and wreck the bias. A knocked disc is limited to about V/2 ± 0.6 V.');
+    const clampTxt = 'Anti-parallel pair between node A and the V/2 rail, not 0 V: node A idles at V/2, so a clamp to ground would forward-bias and wreck the bias. A knocked disc is limited to about V/2 ± 0.6 V. The black band marks the cathode.';
+    pick(D1, 'D1 · 1N4148', clampTxt); pick(D2, 'D2 · 1N4148', clampTxt);
 
-    const U1 = place(makeDIP8(), 0.8, 0);
-    pick(U1, 'U1 · TL072', 'Dual JFET-input op-amp. Half A is the non-inverting gain stage (gain = 1 + RV1/R4); half B buffers the V/2 bias divider. The JFET input draws almost no current, so the 1 MΩ node is not loaded.');
+    const U1p = partBy.U1.pins, uc = HP([(U1p[1][0] + U1p[4][0]) / 2, (U1p[1][1] + U1p[8][1]) / 2]);
+    const U1 = makeDIP8(); U1.position.set(uc.x, 0, uc.z); pcb.add(U1);
+    pick(U1, 'U1 · TL072', 'Dual JFET-input op-amp; notch on the left, pin 1 front-left. Half A (pins 1–3) is the non-inverting gain stage, gain = 1 + RV1/R4; half B (pins 5–7) buffers the V/2 divider. Pin 4 = 0 V, pin 8 = +9 V.');
 
-    const C4 = place(makeCeramicDisc(), 0.4, 1.1);
-    pick(C4, 'C4 · 100 nF ceramic', 'Supply bypass placed right at U1 pin 8 to short high-frequency supply noise to ground before it reaches the op-amp.');
+    const C4p = partBy.C4.pins, C4 = between(makeCeramicDisc(), C4p[1], C4p[2]);
+    pick(C4, 'C4 · 100 nF ceramic', 'Supply bypass from +9 V to ground beside U1 pin 8, shorting high-frequency supply noise before it reaches the op-amp.');
+    const R2 = resistor('R2'), R3 = resistor('R3');
+    const divTxt = 'Equal 100 kΩ divider that makes the V/2 (4.5 V) bias from the 9 V battery, into U1 pin 5. Buffered by U1B and smoothed by C1 so the single supply can carry an AC signal.';
+    pick(R2, 'R2 · 100 kΩ', divTxt); pick(R3, 'R3 · 100 kΩ', divTxt);
+    const C1 = electro('C1');
+    pick(C1, 'C1 · 10 µF', 'Smooths the divider node so supply ripple and noise never reach U1A\'s input through R1. Pale stripe = negative lead, to ground.');
+    const C5 = electro('C5');
+    pick(C5, 'C5 · 10 µF', 'Supply reservoir across +9 V and ground: covers brief current demands so the rail does not sag on signal peaks.');
 
-    const rW = new THREE.Group();
-    const R2 = makeResistor(['brown', 'black', 'yellow', 'gold']); R2.position.set(2.3, 0, 1.0); rW.add(R2);
-    const R3 = makeResistor(['brown', 'black', 'yellow', 'gold']); R3.position.set(2.3, 0, 1.8); rW.add(R3);
-    pcb.add(rW);
-    pick(rW, 'R2 / R3 · 100 kΩ', 'Equal 100 kΩ divider that makes the V/2 (4.5 V) bias rail from the 9 V battery. Buffered by U1B and smoothed by C1 so the single supply can carry an AC signal.');
-
-    const C1 = place(makeElectrolytic(0.25, 1.1, 0x1a3a8c, -Math.PI / 2), 1.0, 1.8);
-    pick(C1, 'C1 · 10 µF', 'Smooths the V/2 bias rail so supply ripple and noise never reach U1A\'s input through R1.');
-    const C5 = place(makeElectrolytic(0.25, 1.1, 0x1a3a8c, -Math.PI / 2), 3.0, -0.2);
-    pick(C5, 'C5 · 10 µF', 'Supply reservoir at the op-amp: supplies brief current demands so the 9 V rail does not sag on signal peaks.');
-
-    const RV1 = place(makeTrimpot(), -0.8, 1.5);
-    pick(RV1, 'RV1 · 100 kΩ trimpot', 'Sets the gain from 1× to 101× (0–40 dB) as 1 + RV1/R4. Turn the gain control to see the screw rotate.');
-
-    const R4 = place(makeResistor(['brown', 'black', 'red', 'gold']), -1.0, -0.6);
-    pick(R4, 'R4 · 1 kΩ', 'Gain-set leg of U1A\'s feedback: gain = 1 + RV1/R4. Its lower end goes to ground through C2, so the stage has unity gain at DC.');
-
-    const C2 = place(makeElectrolytic(0.3, 1.1, 0x1b1b1d, -Math.PI / 2), -1.0, -1.7);
+    const RVp = partBy.RV1.pins, rvW = HP(RVp.W);
+    const RV1 = makeTrimpot(); RV1.position.set(rvW.x, 0, rvW.z - 0.4); pcb.add(RV1);
+    pick(RV1, 'RV1 · 100 kΩ trimpot', 'Wired as a variable resistor (wiper tied to one end) from U1 pin 1 to pin 2. Sets the gain from 1× to 101× (0–40 dB) as 1 + RV1/R4. Turn the gain control to see the screw rotate.');
+    const R4 = resistor('R4');
+    pick(R4, 'R4 · 1 kΩ', 'Gain-set leg from U1 pin 2: gain = 1 + RV1/R4. Its other end goes to ground through C2, so the stage has unity gain at DC.');
+    const C2 = electro('C2');
     pick(C2, 'C2 · 22 µF', 'DC-blocks the gain-set leg so the stage is unity-gain at DC and the bias is not amplified.');
-
-    const C3 = place(makeFilmBox(), -2.4, 1.2);
+    const C3p = partBy.C3.pins, C3 = between(makeFilmBox(), C3p[1], C3p[2]);
     pick(C3, 'C3 · 4.7 µF film', 'Output DC block ahead of the recorder input, so the V/2 offset never reaches the recorder.');
+    const R6 = resistor('R6');
+    pick(R6, 'R6 · 100 Ω', 'Output series resistor that isolates the op-amp from cable capacitance so it stays stable. Its far end is the line output to the jack tip.');
 
-    const R6 = place(makeResistor(['brown', 'black', 'brown', 'gold']), -2.6, -0.8);
-    pick(R6, 'R6 · 100 Ω', 'Output series resistor that isolates the op-amp from cable capacitance so it stays stable.');
+    // --- wiring: bare bus (layer 0) and insulated jumpers (layers 1, 2) ---
+    const LIFT = [0.03, 0.10, 0.20], RAD = [0.022, 0.03, 0.03];
+    const NETCOL = { VP: 0xd02020, GND: 0x1a1a1a, IN: 0xe8c21a, VB: 0x2f9a4a, DIV: 0x2a62c9, FB: 0xe8e8e8, X: 0x8a8f96, OA: 0xe8731a, C3O: 0x8a4fc9 };
+    function polyTube(pts, r, m, parent) {
+      const cp = new THREE.CurvePath();
+      for (let i = 1; i < pts.length; i++) cp.add(new THREE.LineCurve3(pts[i - 1], pts[i]));
+      return add(parent, new THREE.TubeGeometry(cp, Math.max(8, pts.length * 6), r, 6), m, 0, 0, 0);
+    }
+    for (const w of BD.wires) {
+      const y = LIFT[w.layer];
+      const pts = [];
+      const first = HP(w.path[0]), last = HP(w.path[w.path.length - 1]);
+      pts.push(new THREE.Vector3(first.x, -0.02, first.z));
+      for (const h of w.path) { const q = HP(h); pts.push(new THREE.Vector3(q.x, y, q.z)); }
+      pts.push(new THREE.Vector3(last.x, -0.02, last.z));
+      const m = w.layer === 0 ? mat(SILVER, 0.35, 0.45) : mat(NETCOL[w.net] || 0x777777, 0.55, 0);
+      const tube = polyTube(pts, RAD[w.layer], m, pcb);
+      const info = BD.netInfo[w.net] || [w.net, ''];
+      pick(tube, (w.layer === 0 ? 'Bus wire · ' : 'Jumper · ') + info[0], info[1]);
+    }
+    // solder joints on the underside of every used hole (visible through the clear enclosure floor edge-on)
+    const used = new Set();
+    for (const p of BD.parts) for (const h of Object.values(p.pins)) used.add(h[0] + ',' + h[1]);
+    for (const w of BD.wires) for (const h of [w.path[0], w.path[w.path.length - 1]]) used.add(h[0] + ',' + h[1]);
+    for (const k of Object.values(BD.pads)) used.add(k[0] + ',' + k[1]);
+    const solderGeo = new THREE.SphereGeometry(0.06, 8, 4, 0, Math.PI * 2, Math.PI / 2, Math.PI / 2);
+    const solderMat = mat(0xcfd3d8, 0.25, 0.9);
+    used.forEach((k) => { const h = k.split(',').map(Number), q = HP(h); add(pcb, solderGeo, solderMat, q.x, -DIM.pcb.thick, q.z); });
 
-    pick(foil, 'Foil shield', 'Aluminium foil on both faces of the disc inside the housing, grounded at one point only (to avoid a ground loop). Shields the high-impedance 1 MΩ node from hum.');
-    pick(disc, 'PZ1 · piezo disc', 'A 27 mm piezo disc epoxied to the underside of the platform, below the male\'s half. It turns substrate-borne vibration into a voltage across ~15 nF.');
+    pick(foil, 'Foil shield', 'Aluminium foil on both faces of the disc inside the housing, grounded at one point only (the short strap to the black lead) to avoid a ground loop. Shields the high-impedance 1 MΩ node from hum.');
+    // foil-to-ground strap at the housing edge: the single ground point
+    add(pz, new THREE.TubeGeometry(new THREE.LineCurve3(new THREE.Vector3(-0.12, -0.4, 1.2), new THREE.Vector3(-0.12, -0.3, 0.9)), 2, 0.03, 6), mat(SILVER, 0.35, 0.45), 0, 0, 0);
+    pick(disc, 'PZ1 · piezo disc', 'A 27 mm piezo disc epoxied to the underside of the platform, below the male\'s half. It turns substrate-borne vibration into a voltage across ~15 nF. Red lead = ceramic face (signal), black = brass face (ground).');
 
-    // ===== J1 on the -x wall =====
+    // ===== Off-board terminals (enclosure-local) =====
+    const padPos = (name) => { const q = HP(BD.pads[name]); return new THREE.Vector3(PX + q.x, pcbTopY, q.z); };
+    const above = (v, dy) => new THREE.Vector3(v.x, v.y + dy, v.z);
+    const TERM = {};
+
+    // J1 on the -x wall, solder lugs facing inward
     const J1 = new THREE.Group(); J1.name = 'J1';
     const jy = -1.25;
     J1.position.set(-EW / 2, jy, 0);
@@ -375,60 +404,90 @@
     add(J1, cylG(0.34, 0.34, 0.2, 16, true), mat(0xd0d3d6, 0.25, 0.95), -0.6, 0, 0);
     const hole = add(J1, new THREE.CircleGeometry(0.2, 16), new THREE.MeshBasicMaterial({ color: 0x050505 }), -0.711, 0, 0);
     hole.rotation.y = -Math.PI / 2;
-    pick(J1, 'J1 · 3.5 mm jack', 'Output jack to the recorder: tip = signal, sleeve = 0 V. On the -x wall; the cable droops with slack so it cannot carry vibration to the table.');
+    for (const [nm, lz] of [['tip', -0.22], ['sleeve', 0.24]]) {
+      add(J1, boxG(0.28, 0.22, 0.04), mat(0xd0d3d6, 0.25, 0.95), 0.72, -0.3, lz);
+      TERM['J1.' + nm] = new THREE.Vector3(-EW / 2 + 0.84, jy - 0.3, lz);
+    }
+    pick(J1, 'J1 · 3.5 mm jack', 'Output jack to the recorder: tip = signal (from R6), sleeve = 0 V. On the -x wall; the cable droops with slack so it cannot carry vibration to the table.');
 
-    // ===== SW1 on the +z wall =====
+    // SW1 on the +z wall beside the battery snap, two lugs inside
     const SW1 = new THREE.Group(); SW1.name = 'SW1';
-    SW1.position.set(-2.5, -1.2, ED / 2);
+    SW1.position.set(4.1, -1.2, ED / 2);
     enc.add(SW1);
     add(SW1, boxG(1.0, 0.5, 0.5), mat(0x202226, 0.5, 0.2), 0, 0, 0.3);
     add(SW1, boxG(0.7, 0.04, 0.4), mat(0xc4c8cc, 0.3, 0.9), 0, 0.27, 0.3);
     add(SW1, boxG(0.28, 0.2, 0.2), mat(0x3a3e44, 0.5, 0.1), -0.15, 0.37, 0.3);
-    pick(SW1, 'SW1 · slide switch', 'SPST slide switch in the battery line. Battery power only: a mains adapter would couple 50/60 Hz hum straight into the 1 MΩ node.');
+    add(SW1, boxG(0.9, 0.4, 0.3), mat(0x202226, 0.5, 0.2), 0, 0, -0.15);
+    for (const [nm, lx] of [['1', -0.28], ['2', 0.28]]) {
+      add(SW1, boxG(0.06, 0.12, 0.25), mat(0xd0d3d6, 0.25, 0.95), lx, -0.05, -0.42);
+      TERM['SW1.' + nm] = new THREE.Vector3(4.1 + lx, -1.25, ED / 2 - 0.55);
+    }
+    pick(SW1, 'SW1 · slide switch', 'Power switch in the battery\'s + lead, between the battery and the +9 V bus. Battery power only: a mains adapter would couple 60 Hz hum straight into the 1 MΩ node.');
 
-    // ===== BT1 (inside the enclosure, next to the PCB) =====
+    // BT1 inside the enclosure, snap end toward SW1
     const BT1 = new THREE.Group(); BT1.name = 'BT1';
-    const bx = 4.0, bz = 0.15, by = -EH + 0.1 + 0.875;
+    const bx = 4.0, bz = -0.45, by = -EH + 0.1 + 0.875;
     BT1.position.set(bx, by, bz);
     enc.add(BT1);
     add(BT1, boxG(2.65, 1.75, 4.8), mat(0x1c1c1c, 0.5, 0.1), 0, 0, 0);
     const bl = labelTex('9V', 128, 128, '#2a5ca8', '#ffffff', 'bold 64px sans-serif');
-    const blm = add(BT1, new THREE.PlaneGeometry(2.3, 2.0), new THREE.MeshBasicMaterial({ map: bl }), 0, 0.8785 + 0.001, 0);
-    blm.rotation.x = -Math.PI / 2; blm.scale.set(1, 1, 1);
-    blm.geometry = new THREE.PlaneGeometry(2.3, 4.4);
+    const blm = add(BT1, new THREE.PlaneGeometry(2.3, 4.4), new THREE.MeshBasicMaterial({ map: bl }), 0, 0.8785 + 0.001, 0);
+    blm.rotation.x = -Math.PI / 2;
+    // 9 V snap: hexagonal negative, round positive
     add(BT1, new THREE.CylinderGeometry(0.2, 0.2, 0.25, 6).rotateX(Math.PI / 2), mat(0xc4c8cc, 0.3, 0.95), -0.62, 0, 2.5);
     add(BT1, new THREE.CylinderGeometry(0.16, 0.16, 0.25, 12).rotateX(Math.PI / 2), mat(0xc4c8cc, 0.3, 0.95), 0.62, 0, 2.5);
     add(BT1, boxG(2.2, 1.1, 0.7), mat(0x0e0e10, 0.6, 0), 0, 0, 2.85);
-    // clip wires to the board
-    const w1 = new THREE.CatmullRomCurve3([new THREE.Vector3(-0.62, 0.2, 3.1), new THREE.Vector3(-1.2, 0.5, 3.1), new THREE.Vector3(-2.0, 0.2, 2.4)]);
-    const w2 = new THREE.CatmullRomCurve3([new THREE.Vector3(0.62, 0.2, 3.1), new THREE.Vector3(-0.9, 0.7, 3.2), new THREE.Vector3(-2.0, 0.1, 2.0)]);
-    add(BT1, new THREE.TubeGeometry(w1, 10, 0.05, 6), mat(0xd02020, 0.5, 0), 0, 0, 0);
-    add(BT1, new THREE.TubeGeometry(w2, 10, 0.05, 6), mat(0x151515, 0.5, 0), 0, 0, 0);
-    pick(BT1, 'BT1 · 9 V battery', 'Battery supply: lying inside the enclosure beside the board. Gives hum-free power; the V/2 divider turns the single 9 V rail into a ±4.5 V signal swing.');
+    TERM['BT1.+'] = new THREE.Vector3(bx + 0.62, by + 0.2, bz + 3.2);
+    TERM['BT1.-'] = new THREE.Vector3(bx - 0.62, by + 0.2, bz + 3.2);
+    pick(BT1, 'BT1 · 9 V battery', 'Battery supply inside the enclosure. + goes through SW1 to the +9 V bus; − goes to the ground bus. The V/2 divider turns the single 9 V rail into a ±4.5 V signal swing.');
 
-    // ===== Lead from piezo to the enclosure -z wall (world coordinates) =====
-    const gx = enc.position.x + 4.5, gz = enc.position.z - ED / 2, gy = enc.position.y - 1.25;
+    // piezo lead gland on the -z wall, above the board's right edge
+    const glandL = new THREE.Vector3(2.4, -1.25, -ED / 2);
+    TERM['PZ1.hot'] = glandL.clone(); TERM['PZ1.shield'] = glandL.clone();
+
+    // flying leads, routed to stay clear of the board, battery and walls
+    const fly = {
+      'PZ1.hot': (a, b) => [a, new THREE.Vector3(2.6, a.y, a.z + 0.4), new THREE.Vector3(2.6, b.y + 0.35, b.z - 0.6), above(b, 0.3), b],
+      'PZ1.shield': (a, b) => [a, new THREE.Vector3(2.35, a.y - 0.1, a.z + 0.4), above(b, 0.3), b],
+      'SW1.2': (a, b) => [a, new THREE.Vector3(a.x, -0.35, a.z - 0.6), new THREE.Vector3(2.7, -0.35, b.z), above(b, 0.35), b],
+      'BT1.-': (a, b) => [a, new THREE.Vector3(a.x - 0.4, a.y, a.z + 0.15), new THREE.Vector3(2.6, b.y + 0.3, b.z + 0.1), above(b, 0.25), b],
+      'J1.tip': (a, b) => [a, new THREE.Vector3(a.x - 0.4, a.y + 0.3, a.z), new THREE.Vector3(b.x + 0.25, b.y, b.z), b],
+      'J1.sleeve': (a, b) => [a, new THREE.Vector3(a.x - 0.3, a.y + 0.3, a.z), new THREE.Vector3(b.x + 0.25, b.y, b.z), b],
+    };
+    let innerLen = 0;
+    for (const o of BD.offboard) {
+      const pad = padPos(o.pad), t = TERM[o.to];
+      const curve = new THREE.CatmullRomCurve3(fly[o.to](pad, t), false, 'centripetal');
+      if (o.to === 'PZ1.hot') innerLen = curve.getLength();
+      const m = add(enc, new THREE.TubeGeometry(curve, 24, 0.035, 6), mat(o.color, 0.55, 0), 0, 0, 0);
+      const info = BD.netInfo[o.net] || [o.net, ''];
+      pick(m, 'Lead · ' + o.to + ' → ' + o.pad, info[1]);
+    }
+    for (const tw of BD.terminals) {
+      const a = TERM[tw.a], b = TERM[tw.b];
+      const curve = new THREE.CatmullRomCurve3([a, new THREE.Vector3(a.x, a.y, a.z + 0.15), new THREE.Vector3(b.x, b.y, b.z - 0.15), b], false, 'centripetal');
+      const m = add(enc, new THREE.TubeGeometry(curve, 12, 0.035, 6), mat(tw.color, 0.55, 0), 0, 0, 0);
+      pick(m, 'Lead · battery + → SW1', 'Battery positive to the power switch; the switch\'s other lug feeds the +9 V bus.');
+    }
+
+    // ===== Lead from the piezo to the gland (world coordinates) =====
+    const gx = enc.position.x + glandL.x, gz = enc.position.z + glandL.z, gy = enc.position.y + glandL.y;
     const lp = [
       new THREE.Vector3(POS.piezo.x + 0.1, Y.platformBottom - 0.25, POS.piezo.z + leadExitZ + 0.05),
-      new THREE.Vector3(POS.piezo.x - 0.1, Y.platformBottom - 0.45, POS.piezo.z + 2.9),
-      new THREE.Vector3(gx + 0.5, gy + 0.55, gz - 1.3),
+      new THREE.Vector3(POS.piezo.x - 0.3, Y.platformBottom - 0.45, POS.piezo.z + 2.9),
+      new THREE.Vector3(gx + 0.6, gy + 0.5, gz - 1.3),
       new THREE.Vector3(gx + 0.15, gy + 0.1, gz - 0.35),
       new THREE.Vector3(gx, gy, gz),
     ];
     const leadCurve = new THREE.CatmullRomCurve3(lp, false, 'centripetal');
     S.leadLen = leadCurve.getLength();
-    // internal wire from the gland to R1
-    const iw = new THREE.CatmullRomCurve3([new THREE.Vector3(gx, gy, gz), new THREE.Vector3(gx - 0.3, gy, gz + 0.4),
-      new THREE.Vector3(enc.position.x + PX + 1.9, enc.position.y + pcbTopY + 0.3, enc.position.z - 2.0)], false, 'centripetal');
-    const innerLen = iw.getLength();
     console.info('[electronics] piezo lead length = ' + S.leadLen.toFixed(2) + ' cm (+' + innerLen.toFixed(2) + ' cm inside box = ' + (S.leadLen + innerLen).toFixed(2) + ' cm total to node A; limit 15)');
     S.leadMat = new THREE.MeshStandardMaterial({ color: 0x6c7078, roughness: 0.6, metalness: 0.2, emissive: 0x4d8fe0, emissiveMap: flowL, emissiveIntensity: 0 });
     flowL.repeat.set(Math.max(2, S.leadLen / 1.2), 1);
     const leadMesh = new THREE.Mesh(new THREE.TubeGeometry(leadCurve, 40, 0.14, 8), S.leadMat);
     root.add(leadMesh);
-    add(root, new THREE.TubeGeometry(iw, 12, 0.04, 6), mat(0xd02020, 0.5, 0), 0, 0, 0);
-    add(root, new THREE.TorusGeometry(0.2, 0.05, 6, 12), mat(0x222426, 0.6, 0), gx, gy, gz); // grommet
-    root.children[root.children.length - 1].rotation.x = Math.PI / 2;
+    const grom = add(root, new THREE.TorusGeometry(0.2, 0.05, 6, 12), mat(0x222426, 0.6, 0), gx, gy, gz);
+    grom.rotation.x = Math.PI / 2;
     pick(leadMesh, 'Piezo lead · shielded pair', 'Shielded twisted pair from the disc to the board, about ' + S.leadLen.toFixed(1) + ' cm long. It must stay under 15 cm: node A is a 1 MΩ node that picks up hum on any longer run.');
     pick(enc, 'Preamp enclosure', 'Clear acrylic box screwed to the platform underside. It hangs 0.6 cm clear of the table, so it cannot bypass the vibration isolation by touching it.');
     pick(shell, 'Preamp enclosure', 'Clear acrylic box screwed to the platform underside. It hangs 0.6 cm clear of the table, so it cannot bypass the vibration isolation by touching it.');
